@@ -362,9 +362,9 @@
       </div>
 
       <div class="field">
-        <div class="flabel">メールアドレス<span class="opt-tag">任意</span></div>
+        <div class="flabel">メールアドレス<span class="req">必須</span></div>
         <input class="inp" type="email" id="em" placeholder="example@mail.com" autocomplete="email">
-        <div class="cal-note" style="text-align:left;margin-top:7px">ご入力いただくと、確認メールが自動で届きます。</div>
+        <div class="cal-note" style="text-align:left;margin-top:7px">ご予約内容の確認メールをお送りします。</div>
       </div>
 
       <div class="field">
@@ -389,7 +389,7 @@
       <h3>ご予約を承りました</h3>
       <div class="rid" id="doneRid"></div>
       <div class="box" id="doneBox"></div>
-      <p>当日は、お時間の5分前を目安にお越しください。<br>着替えは不要です。</p>
+      <p>確認メールをお送りしました。<br>当日は、お時間の5分前を目安にお越しください。着替えのご準備は不要です。</p>
     </div>
   </section>
 
@@ -433,10 +433,10 @@
   <section class="pad" style="background:var(--brand-pale)">
     <div class="eyebrow">FAQ</div>
     <h2>よくあるご質問</h2>
-    <details><summary>着替えは必要ですか？</summary><p>不要です。普段のお洋服のままで分析できます。極端にゆったりした服装のみ、体のラインが分かりにくくなる場合があります。</p></details>
+    <details><summary>着替えは必要ですか？</summary><p>基本的には不要です。普段のお洋服のままで分析できます。ただし、極端にゆったりした服装だと体のラインが分かりにくくなるため、その場合は当院で着替えを無料でお貸しします。ご予約時のご準備は必要ありません。</p></details>
     <details><summary>子どもは何歳から受けられますか？</summary><p>まっすぐ立って指示が聞ける年齢であれば受けられます。ご不安な場合は、ご相談内容欄にお子さまの年齢をご記入ください。</p></details>
     <details><summary>分析だけで帰っても大丈夫ですか？</summary><p>問題ありません。分析結果をお渡ししますので、お持ち帰りいただけます。</p></details>
-    <details><summary>支払い方法は？</summary><p>当日、受付にてお支払いいただきます。</p></details>
+    <details><summary>支払い方法は？</summary><p>当日、受付にてお支払いいただきます。現金・クレジットカード各種・交通系IC・PayPayに対応しています。</p></details>
   </section>
 
   <footer>
@@ -684,6 +684,7 @@
     if(!sel.time) miss.push('時間');
     if(!nm) miss.push('お名前');
     if(!tel) miss.push('電話番号');
+    if(!em) miss.push('メールアドレス');
     if(miss.length){ show('err', miss.join('・') + ' をご入力ください。'); return; }
     if(em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){
       show('err','メールアドレスの形式をご確認ください。'); return;
