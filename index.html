@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KIZUカイロプラクティック　土日オンライン予約サイト</title>
-<meta name="description" content="KIZUカイロプラクティック日本橋本院の土日オンライン予約サイト。AI姿勢分析が期間限定¥1,100（9月6日まで）。日本橋駅B1出口徒歩2分。">
+<meta name="description" content="KIZUカイロプラクティック日本橋本院の土日オンライン予約サイト。AI姿勢分析が割引価格¥3,300。日本橋駅B1出口徒歩2分。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Old+Mincho:wght@400;600;900&display=swap" rel="stylesheet">
@@ -224,7 +224,7 @@
     <span class="sun-badge"><i></i>土曜・日曜 受付</span>
     <h1>KIZUカイロプラクティック<br>土日オンライン予約サイト</h1>
     <p>平日は時間が取れない方へ。最新のAI機器で、大人もお子さまも、身体の状態を数値で確認できます。</p>
-    <div class="deadline"><b>期間限定料金</b>　9月6日（日）まで</div>
+    <div class="deadline"><b>割引価格</b>　実施中</div>
     <a class="jump" href="#book">空いている時間を見る</a>
   </div>
 
@@ -232,8 +232,8 @@
   <section class="pad">
     <div class="eyebrow">Menu</div>
     <h2>3つのメニュー</h2>
-    <p class="lede">すべて所要時間30分・完全予約制です。</p>
-    <div class="limited-note"><b>下記はすべて期間限定料金です。</b>9月6日（日）までのご来院分に適用されます。</div>
+    <p class="lede">完全予約制です。所要時間は各メニューをご確認ください。</p>
+    <div class="limited-note"><b>下記はすべて割引価格です。</b>終了時期は未定のため、お早めにご利用ください。</div>
 
     <div class="menu-card">
       <span class="who">大人</span>
@@ -241,7 +241,7 @@
       <p>最新のAI機器で、頭の位置・背骨のカーブ・骨盤の傾き・左右差を角度で数値化します。デスクワークによる肩こりや腰痛の背景を、感覚ではなく数字で確認できます。</p>
       <div class="menu-price">
         <span class="was">¥5,500</span>
-        <span class="now">¥1,100</span>
+        <span class="now">¥3,300</span>
         <span class="dur">30分</span>
       </div>
     </div>
@@ -252,7 +252,7 @@
       <p>AI機器でお子さまの姿勢を分析し、その子に合った推奨姿勢と、ご家庭でできるエクササイズをご提案します。</p>
       <div class="menu-price">
         <span class="was">¥5,500</span>
-        <span class="now">¥1,100</span>
+        <span class="now">¥3,300</span>
         <span class="dur">30分</span>
       </div>
     </div>
@@ -264,6 +264,17 @@
       <div class="menu-price">
         <span class="now">¥3,300</span>
         <span class="dur">30分</span>
+      </div>
+    </div>
+
+    <div class="menu-card">
+      <span class="who">お子さま</span>
+      <h3>身体の使い方修正</h3>
+      <p>踵や膝の痛み・違和感の原因を、歩き方の分析から探ります。動作のクセを見つけ、その場で修正までを行う60分のメニューです。</p>
+      <div class="menu-price">
+        <span class="was">¥13,200</span>
+        <span class="now">¥8,800</span>
+        <span class="dur">60分</span>
       </div>
     </div>
   </section>
@@ -520,7 +531,8 @@
         (price?'　'+esc(price):'')+'</small></label>';
       box.appendChild(d);
       d.querySelector('input').addEventListener('change', function(){
-        sel.menuId = m.id; hideMsg(); renderStaff(); update();
+        sel.menuId = m.id; sel.time = null;
+        hideMsg(); renderStaff(); renderTimes(); update();
       });
     });
   }
@@ -635,13 +647,29 @@
     var box = $('timeOpts');
     box.innerHTML = '';
     if(!sel.date){ $('timeNote').textContent = '日付を選ぶと空き時間が表示されます'; return; }
-    var list = DATA.slots.filter(function(s){
-      return s.date === sel.date && (!sel.staffId || s.staffId === sel.staffId);
-    }).map(function(s){ return s.time; });
-    list = list.filter(function(v,i){ return list.indexOf(v)===i; }).sort();
+    var open = {};
+    DATA.slots.forEach(function(s){
+      if(s.date === sel.date && (!sel.staffId || s.staffId === sel.staffId)) open[s.time] = true;
+    });
 
-    if(!list.length){ $('timeNote').textContent = 'この日は満席です。別の日をお選びください。'; return; }
-    $('timeNote').textContent = '';
+    // 60分メニューなど、1枠より長いものは連続した空きが必要
+    var need = slotsNeeded();
+    var list = Object.keys(open).filter(function(t){
+      for(var i=1;i<need;i++){
+        if(!open[addMin(t, i*slotLen())]) return false;
+      }
+      return true;
+    }).sort();
+
+    if(!list.length){
+      $('timeNote').textContent = need > 1
+        ? 'この日は、このメニューに必要な連続した空きがありません。別の日をお選びください。'
+        : 'この日は満席です。別の日をお選びください。';
+      return;
+    }
+    $('timeNote').textContent = need > 1
+      ? 'このメニューは' + menuMinutes() + '分のお時間をいただきます。'
+      : '';
     list.forEach(function(t, i){
       var id = 'time_'+i;
       var d = document.createElement('div');
@@ -659,7 +687,7 @@
   function update(){
     var rows = [];
     var m = find(DATA.menus, sel.menuId), st = find(DATA.staff, sel.staffId);
-    if(m)  rows.push(['メニュー', m.name + (m.price ? '（'+m.price+'）' : '')]);
+    if(m)  rows.push(['メニュー', m.name + (m.price ? '（'+m.price+'）' : '') + '　' + (Number(m.minutes)||30) + '分']);
     if(st) rows.push(['ご担当', st.name]);
     if(sel.date) rows.push(['ご来院日', jp(sel.date)]);
     if(sel.time) rows.push(['お時間', sel.time]);
@@ -728,6 +756,17 @@
   });
 
   /* ---------- 補助 ---------- */
+  function slotLen(){ return Number(DATA.slotMinutes) || 30; }
+  function menuMinutes(){
+    var m = find(DATA.menus, sel.menuId);
+    return m ? (Number(m.minutes) || slotLen()) : slotLen();
+  }
+  function slotsNeeded(){ return Math.max(1, Math.ceil(menuMinutes() / slotLen())); }
+  function addMin(hhmm, add){
+    var p = hhmm.split(':');
+    var t = Number(p[0])*60 + Number(p[1]) + add;
+    return ('0'+Math.floor(t/60)).slice(-2) + ':' + ('0'+(t%60)).slice(-2);
+  }
   function parse(s){ var p=s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
   function ymd(d){
     return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
